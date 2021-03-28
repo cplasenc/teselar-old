@@ -7,16 +7,19 @@
       "@types/morgan": "^1.9.2",
       "@types/node": "^14.14.36",
       "morgan": "^1.10.0",
+      "nodemon": "^2.0.7",
       "ts-node": "^9.1.1",
       "typescript": "^4.2.3"
    },
    "dependencies": {
+      "class-validator": "^0.13.1",
       "express": "^4.17.1",
       "pg": "^8.4.0",
       "reflect-metadata": "^0.1.10",
       "typeorm": "0.2.31"
    },
    "scripts": {
-      "start": "ts-node src/server.ts"
+      "start": "ts-node src/server.ts",
+      "dev": "nodemon --exec ts-node src/server.ts"
    }
 }
