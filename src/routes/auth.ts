@@ -7,11 +7,25 @@ const register = async (req: Request, res: Response) => {
 
     try {
         //TODO: validar datos
+        let errors: any = {}
+        const emailUser = await User.findOne({ email })
+        const usernameUser = await User.findOne({ username })
+
+        if(emailUser) {
+            errors.email = 'Esta dirección de e-mail ya ha sido utilizada'
+        }
+        if(usernameUser) {
+            errors.username = 'Este nombre de usuario ya ha sido utilizado'
+        }
+
+        if(Object.keys(errors).length > 0) {
+            return res.status(400).json(errors);
+        }
 
         //TODO: crear usuario
         const user = new User({ email, username, password })
 
-        const errors = await validate(user);
+        errors = await validate(user);
         if(errors.length > 0) {
             return res.status(400).json({ errors })
         }
