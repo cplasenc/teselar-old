@@ -3,6 +3,7 @@ import {createConnection} from "typeorm";
 import express from 'express';
 import morgan from 'morgan';
 import authRoutes from './routes/auth';
+import postRoutes from './routes/posts';
 import trim from './middleware/trim';
 import dotenv = require('dotenv');
 import cookieParser = require("cookie-parser");
@@ -11,6 +12,7 @@ import cookieParser = require("cookie-parser");
 dotenv.config({path: 'config/dev.env'});
 
 const app = express();
+const PORT = process.env.PORT;
 
 app.use(express.json())
 app.use(morgan('dev'));
@@ -19,13 +21,14 @@ app.use(cookieParser());
 
 app.get('/', (req, res) => res.send('Hola mundo'));
 app.use('/api/auth', authRoutes)
+app.use('/api/posts', postRoutes)
 
-app.listen(5000, async () => {
-    console.log('Servidor en localhost:5000')
+app.listen(PORT, async () => {
+    console.log(`Servidor ejecutándose en http://localhost:${PORT}`)
 
     try {
         await createConnection()
-        console.log('Base de datos conectada')
+        console.log('Conexión establecida con la base de datos')
     } catch (err) {
         console.log(err)
     }
