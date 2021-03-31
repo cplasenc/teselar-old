@@ -64,7 +64,7 @@ const login = async (req: Request, res: Response) => {
          return res.status(401).json({ password: 'Contraseña incorrecta' })
      }
 
-     const token = jwt.sign({ username }, process.env.JWT_SECRET)
+     const token = jwt.sign({ username }, process.env.JWT_SECRET!)
 
      //guarda el token en una cookie
      res.set('Set-Cookie', cookie.serialize('token', token, {
@@ -77,11 +77,12 @@ const login = async (req: Request, res: Response) => {
 
      return res.json(token);
  } catch (err) {
-     
+     console.log(err);
+     return res.json({ error: 'Error inesperado' })
  }
 }
 
-const me = async (req: Request, res: Response) => {
+const me = async (_: Request, res: Response) => {
     return res.json(res.locals.user);
 }
 
@@ -91,7 +92,7 @@ const me = async (req: Request, res: Response) => {
  * @param res 
  * @returns 
  */
-const logout = async (req: Request, res: Response) => {
+const logout = async (_: Request, res: Response) => {
     res.set('Set-Cookie', cookie.serialize('token', '', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

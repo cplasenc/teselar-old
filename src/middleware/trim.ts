@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express";
 /**
  * elimina los espacios en blanco de los campos durante el registro, excepto la contraseña
  */
-export default (req: Request, res: Response, next: NextFunction) => {
+export default (req: Request, _: Response, next: NextFunction) => {
 
     const exceptions = ['password']
 
