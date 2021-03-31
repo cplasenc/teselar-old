@@ -35,13 +35,31 @@ const getPosts = async (_: Request, res: Response) => {
         return res.json(posts);
     } catch (err) {
         console.log(err);
-        return res.json({ error: 'Error inesperado al cargar posts'})
+        return res.status(500).json({ error: 'Error inesperado al cargar posts'})
     }
 }
+
+const getPost = async (req: Request, res: Response) => {
+
+    const { identifier, slug } = req.params
+
+    try {
+        const post = await Post.findOneOrFail({ identifier, slug }, {
+            relations: ['sub'],
+        })
+
+        return res.json(post);
+    } catch (err) {
+        console.log(err);
+        return res.status(404).json({ error: 'Post no encontrado'})
+    }
+}
+
 
 const router = Router()
 
 router.post('/', auth, createPost)
 router.get('/', getPosts)
+router.get('/:identifier/:slug', getPost)
 
 export default router
