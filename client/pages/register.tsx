@@ -29,7 +29,7 @@ export default function Register() {
         username,
       });
 
-      router.push('/login')
+      router.push('/login') //redirigue a la página de login al registrarte
 
       console.log(res.data); //eliminar
     } catch (err) {
@@ -41,8 +41,7 @@ export default function Register() {
   return (
     <div className='flex'>
       <Head>
-        <title>Create Next App</title>
-        <link rel='icon' href='/favicon.ico' />
+        <title>Registro</title>
       </Head>
 
       <div
