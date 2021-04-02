@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import trim from './middleware/trim';
 import dotenv = require('dotenv');
 import cookieParser = require("cookie-parser");
+import cors from 'cors';
 
 import authRoutes from './routes/auth';
 import postRoutes from './routes/posts';
@@ -20,6 +21,7 @@ app.use(express.json())
 app.use(morgan('dev'));
 app.use(trim);
 app.use(cookieParser());
+app.use(cors());
 
 app.get('/', (_, res) => res.send('Hola mundo'));
 app.use('/api/auth', authRoutes)
