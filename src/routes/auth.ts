@@ -25,6 +25,12 @@ const mapErrors = (errors: Object[]) => {
     })*/
 }
 
+/**
+ * registro de usuarios
+ * @param req 
+ * @param res 
+ * @returns 
+ */
 const register = async (req: Request, res: Response) => {
     const { email, username, password } = req.body;
 
@@ -63,6 +69,12 @@ const register = async (req: Request, res: Response) => {
     }
 }
 
+/**
+ * inicio de sesión
+ * @param req 
+ * @param res 
+ * @returns 
+ */
 const login = async (req: Request, res: Response) => {
  const { username, password } = req.body;
  
