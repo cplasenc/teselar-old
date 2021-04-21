@@ -16,7 +16,7 @@ export default function Register() {
     event.preventDefault();
 
     try {
-      await Axios.post('http://localhost:5000/api/auth/login', {
+      await Axios.post('auth/login', {
         password,
         username,
       });

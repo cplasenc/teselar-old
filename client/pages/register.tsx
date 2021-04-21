@@ -23,7 +23,7 @@ export default function Register() {
     }
 
     try {
-      const res = await Axios.post('http://localhost:5000/api/auth/register', {
+      const res = await Axios.post('/auth/register', {
         email,
         password,
         username,

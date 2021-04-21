@@ -5,7 +5,7 @@ import Navbar from '../components/navbar';
 import { Fragment } from 'react';
 import { useRouter } from 'next/router'
 
-//Axios.defaults.baseURL = 'http://localhost:500/api';
+Axios.defaults.baseURL = 'http://localhost:5000/api'; //url base que llama cada vez que se usa axios
 Axios.defaults.withCredentials = true
 
 function App({ Component, pageProps }: AppProps) {
