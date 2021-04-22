@@ -10,6 +10,7 @@ import cors from 'cors';
 import authRoutes from './routes/auth';
 import postRoutes from './routes/posts';
 import subRoutes from './routes/subs';
+import miscRoutes from './routes/misc';
 
 //carga variables de entorno para configuración
 dotenv.config({path: 'config/dev.env'});
@@ -31,6 +32,7 @@ app.get('/', (_, res) => res.send('Hola mundo'));
 app.use('/api/auth', authRoutes)
 app.use('/api/posts', postRoutes)
 app.use('/api/subs', subRoutes)
+app.use('/api/misc', miscRoutes)
 
 app.listen(PORT, async () => {
     console.log(`Servidor ejecutándose en http://localhost:${PORT}`)
