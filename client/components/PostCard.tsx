@@ -3,6 +3,8 @@ import React from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Post } from '../types';
+import Axios from 'Axios';
+import classNames from 'classnames';
 
 //convierte la hora de creación de un post en relativa (hace 2 horas)
 dayjs.extend(relativeTime);
@@ -15,18 +17,36 @@ interface PostCardProps {
     post: Post
 }
 
-export default function PostCard({ post }) {
+export default function PostCard({ post }: PostCardProps) {
+
+  const vote = async (value) => {
+    try {
+      const res = await Axios.post('/misc/vote', {
+        identifier: post.identifier,
+        slug: post.slug,
+        value: value
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
     return (
         <div key={post.identifier} className='flex mb-4 bg-white rounded'>
         {/* Votos */}
         <div className='w-10 py-3 text-center bg-gray-200 rounded-l'>
           {/* upvote - voto positivo */}
-          <div className="w-6 mx-auto text-gray-400 rounded cursor-pointer hover:bg-gray-300 hover:text-red-500">
-            <i className='fas fa-arrow-up'></i>
+          <div className="w-6 mx-auto text-gray-400 rounded cursor-pointer hover:bg-gray-300 hover:text-red-500" onClick={() => vote(1)}>
+            <i className={classNames('fas fa-arrow-up', {
+              'text-red-500': post.userVote === 1
+            })}></i>
           </div>
+          <p className='text-xs font-bold'>{post.voteScore}</p>
           {/* downvote - voto negativo */}
-          <div className="w-6 mx-auto text-gray-400 rounded cursor-pointer hover:bg-gray-300 hover:text-red-500">
-            <i className='fas fa-arrow-down'></i>
+          <div className="w-6 mx-auto text-gray-400 rounded cursor-pointer hover:bg-gray-300 hover:text-red-500" onClick={() => vote(-1)}>
+          <i className={classNames('fas fa-arrow-down', {
+              'text-blue-600': post.userVote === -1
+            })}></i>
           </div>
 
 .
@@ -68,7 +88,7 @@ export default function PostCard({ post }) {
                 {/* comentarios*/}
                 <ActionButton>
                   <i className='mr-1 fas fa-comments fa-xs'></i>
-                  <span className='font-bold'>20 comentarios</span>
+                  <span className='font-bold'>{post.commentCount} comentarios</span>
                 </ActionButton>
               </a>
             </Link>
