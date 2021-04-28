@@ -38,8 +38,6 @@ export default function Home() {
   );
 }
 
-
-
 /* //Server side rendering (opcional)
 //Ahora hace client side rendering
 export const getServerSideProps = async (context) => {
