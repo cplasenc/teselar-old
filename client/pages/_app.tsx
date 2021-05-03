@@ -4,6 +4,7 @@ import Axios from "Axios";
 import Navbar from '../components/navbar';
 import { Fragment } from 'react';
 import { useRouter } from 'next/router'
+import { AuthProvider } from '../context/auth'
 
 Axios.defaults.baseURL = 'http://localhost:5000/api'; //url base que llama cada vez que se usa axios
 Axios.defaults.withCredentials = true
@@ -13,10 +14,10 @@ function App({ Component, pageProps }: AppProps) {
   const authRoutes = ['/register', '/login']
   const authRoute = authRoutes.includes(pathname)
   
-  return <Fragment>
+  return <AuthProvider>
     {!authRoute ? <Navbar /> : ''}
     <Component {...pageProps} />
-  </Fragment>
+  </AuthProvider>
 }
 
 export default App

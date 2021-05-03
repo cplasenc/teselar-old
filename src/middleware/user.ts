@@ -5,7 +5,7 @@ import User from '../entities/User';
 export default async (req: Request, res: Response, next: NextFunction) => {
     try {
         const token = req.cookies.token;
-        if(!token) throw next()
+        if(!token) return next()
 
         const { username }:any = jwt.verify(token, process.env.JWT_SECRET!)
 
