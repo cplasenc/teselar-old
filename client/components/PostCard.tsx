@@ -60,7 +60,7 @@ export default function PostCard({ post }: PostCardProps) {
                 className='w-6 h-6 mr-1 rounded-full cursor-pointer'
               />
             </Link>
-            <Link href={`/r/${post.subName}`}>
+            <Link href={`/t/${post.subName}`}>
               <a className='text-xs font-bold hover:underline'>
                 /t/{post.subName}
               </a>

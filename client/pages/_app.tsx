@@ -18,12 +18,14 @@ function App({ Component, pageProps }: AppProps) {
   return (
     <SWRConfig
       value={{
-        fetcher: (url) => Axios.get(url).then(res => res.data),
+        fetcher: (url) => Axios.get(url).then((res) => res.data),
       }}
     >
       <AuthProvider>
         {!authRoute ? <Navbar /> : ''}
-        <Component {...pageProps} />
+        <div className={authRoute ? '' : 'pt-12'}>
+          <Component {...pageProps} />
+        </div>
       </AuthProvider>
     </SWRConfig>
   );

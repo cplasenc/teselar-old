@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import Axios from 'Axios';
 import { Post } from '../types';
 import Link from 'next/link';
@@ -23,7 +23,7 @@ export default function Home() {
   const {data: posts} = useSWR('/posts')
 
   return (
-    <div className='pt-12'>
+    <Fragment>
       <Head>
         <title>Teselar: bla bla bla</title>
       </Head>
@@ -37,7 +37,7 @@ export default function Home() {
         </div>
         {/* sidebar */}
       </div>
-    </div>
+    </Fragment>
   );
 }
 
