@@ -6,18 +6,21 @@ import Link from 'next/link';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import PostCard from '../components/PostCard';
+import useSWR from 'swr';
 
 //convierte la hora de creación de un post en relativa (hace 2 horas)
 dayjs.extend(relativeTime);
 
 export default function Home() {
+  /*sustituido para usar SWR
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     Axios.get('/posts')
       .then((res) => setPosts(res.data))
       .catch((err) => console.log(err));
-  }, []);
+  }, []);*/
+  const {data: posts} = useSWR('/posts')
 
   return (
     <div className='pt-12'>
@@ -28,7 +31,7 @@ export default function Home() {
         {/* entradas */}
         <div className='w-160'>
           <h1>Envíos recientes</h1>
-          {posts.map((post) => (
+          {posts?.map((post) => (
             <PostCard post={post} key={post.identifier} />
           ))}
         </div>
