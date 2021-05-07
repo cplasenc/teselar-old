@@ -6,6 +6,9 @@ import Sub from '../entities/Sub';
 import User from '../entities/User';
 import auth from '../middleware/auth';
 import user from '../middleware/user';
+import multer, { FileFilterCallback } from 'multer';
+import { makeId } from '../util/helpers';
+import path from 'path';
 
 const createSub = async (req: Request, res: Response) => {
   const { name, title, description } = req.body;
@@ -66,8 +69,30 @@ const getSub = async (req: Request, res: Response) => {
   }
 };
 
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: 'public/images',
+    filename: (_, file, callback) => {
+      const name = makeId(15)
+      callback(null, name + path.extname(file.originalname)) //jdlksfjldsk + .jpg
+    }
+  }),
+  fileFilter: (_, file: any, callback: FileFilterCallback) => {
+    if(file.mimetype == 'image/jpeg' || file.mimetype == 'image/png') {
+      callback(null, true)
+    } else {
+      callback(new Error('Formato erróneo'))
+    }
+  }
+})
+
+const uploadSubImage = async (_: Request, res: Response) => {
+  return res.json({ success: true })
+}
+
 const router = Router();
 router.post('/', user, auth, createSub);
 router.get('/:name', user, getSub);
+router.post('/:name/image', user, auth, upload.single('file'), uploadSubImage)
 
 export default router;
