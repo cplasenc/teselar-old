@@ -6,8 +6,8 @@ Steps to run this project:
 2. Setup database settings inside `ormconfig.json` file
 3. Run `npm start` command
 
-Client: npm run dev
-Server: npm start
+Client: npm run dev -> multer: npm run dev
+Server: npm start -> multer: npm run dev
 Database: psql -U usuario
 Connect DB: \c databasename
 Tables: \dt
