@@ -9,81 +9,81 @@ import user from '../middleware/user';
 import multer, { FileFilterCallback } from 'multer';
 import { makeId } from '../util/helpers';
 import path from 'path';
+import fs from 'fs';
 
 const createSub = async (req: Request, res: Response) => {
-  const { name, title, description } = req.body;
+  const { name, title, description } = req.body
 
-  const user: User = res.locals.user;
+  const user: User = res.locals.user
 
   try {
-    let errors: any = {};
-    if (isEmpty(name)) errors.name = 'El nombre no puede estar vacío';
-    if (isEmpty(title)) errors.title = 'El título no puede estar vacío';
+    let errors: any = {}
+    if (isEmpty(name)) errors.name = 'Name must not be empty'
+    if (isEmpty(title)) errors.title = 'Title must not be empty'
 
     const sub = await getRepository(Sub)
       .createQueryBuilder('sub')
       .where('lower(sub.name) = :name', { name: name.toLowerCase() })
-      .getOne();
+      .getOne()
 
-    if (sub) errors.name = 'Este sub ya existe';
+    if (sub) errors.name = 'Sub exists already'
 
     if (Object.keys(errors).length > 0) {
-      throw errors;
+      throw errors
     }
   } catch (err) {
-    return res.status(400).json(err);
+    return res.status(400).json(err)
   }
 
   try {
-    const sub = new Sub({ name, description, title, user });
-    await sub.save();
+    const sub = new Sub({ name, description, title, user })
+    await sub.save()
 
-    return res.json(sub);
+    return res.json(sub)
   } catch (err) {
-    console.log(err);
-    return res.status(500).json({ error: 'Error inesperado' });
+    console.log(err)
+    return res.status(500).json({ error: 'Something went wrong' })
   }
-};
+}
 
 const getSub = async (req: Request, res: Response) => {
-  const name = req.params.name;
+  const name = req.params.name
 
   try {
-    const sub = await Sub.findOneOrFail({ name });
+    const sub = await Sub.findOneOrFail({ name })
     const posts = await Post.find({
       where: { sub },
       order: { createdAt: 'DESC' },
       relations: ['comments', 'votes'],
-    });
+    })
 
-    sub.posts = posts;
+    sub.posts = posts
 
-    if(res.locals.user) {
-        sub.posts.forEach(p => p.setUserVote(res.locals.user))
+    if (res.locals.user) {
+      sub.posts.forEach((p) => p.setUserVote(res.locals.user))
     }
 
-    return res.json(sub);
+    return res.json(sub)
   } catch (err) {
-    console.log(err);
-    return res.status(404).json({ sub: 'Subcomunidad no encontrada' });
+    console.log(err)
+    return res.status(404).json({ sub: 'Sub not found' })
   }
-};
+}
 
 const ownSub = async (req: Request, res: Response, next: NextFunction) => {
   const user: User = res.locals.user
 
   try {
-    const sub = await Sub.findOneOrFail({ where: { name: req.params.name }})
+    const sub = await Sub.findOneOrFail({ where: { name: req.params.name } })
 
-    if(sub.username !== user.username) {
-      return res.status(403).json({ error: 'No eres el propietario de esta comunidad'})
+    if (sub.username !== user.username) {
+      return res.status(403).json({ error: 'You dont own this sub' })
     }
 
     res.locals.sub = sub
     return next()
-
   } catch (err) {
-    return res.status(500).json({ error: 'Error inesperado' })
+    return res.status(500).json({ error: 'Something went wrong' })
   }
 }
 
@@ -92,44 +92,61 @@ const upload = multer({
     destination: 'public/images',
     filename: (_, file, callback) => {
       const name = makeId(15)
-      callback(null, name + path.extname(file.originalname)) //jdlksfjldsk + .jpg
-    }
+      callback(null, name + path.extname(file.originalname)) // e.g. jh34gh2v4y + .png
+    },
   }),
   fileFilter: (_, file: any, callback: FileFilterCallback) => {
-    if(file.mimetype == 'image/jpeg' || file.mimetype == 'image/png') {
+    if (file.mimetype == 'image/jpeg' || file.mimetype == 'image/png') {
       callback(null, true)
     } else {
-      callback(new Error('Formato erróneo'))
+      callback(new Error('Not an image'))
     }
-  }
+  },
 })
 
 const uploadSubImage = async (req: Request, res: Response) => {
   const sub: Sub = res.locals.sub
   try {
     const type = req.body.type
+    console.log(req.file)
 
-    if(type !== 'image' && type !== 'banner'){
-      return res.status(400).json({ error: 'Formato erróneo' })
+    if (type !== 'image' && type !== 'banner') {
+      fs.unlinkSync(req.file.path)
+      return res.status(400).json({ error: 'Invalid type' })
     }
 
-    if(type === 'image') {
+    let oldImageUrn: string = ''
+    if (type === 'image') {
+      oldImageUrn = sub.imageUrn ?? ''
       sub.imageUrn = req.file.filename
-    } else if(type === 'banner'){
+    } else if (type === 'banner') {
+      oldImageUrn = sub.bannerUrn ?? ''
       sub.bannerUrn = req.file.filename
     }
     await sub.save()
 
+    if (oldImageUrn !== '') {
+      fs.unlinkSync(`public\\images\\${oldImageUrn}`)
+    }
+
     return res.json(sub)
   } catch (err) {
-    return res.status(500).json({ error: 'Error inesperado' })
+    console.log(err)
+    return res.status(500).json({ error: 'Something went wrong' })
   }
-  return res.json({ success: true })
 }
 
-const router = Router();
-router.post('/', user, auth, createSub);
-router.get('/:name', user, getSub);
-router.post('/:name/image', user, auth, ownSub, upload.single('file'), uploadSubImage)
+const router = Router()
 
-export default router;
+router.post('/', user, auth, createSub)
+router.get('/:name', user, getSub)
+router.post(
+  '/:name/image',
+  user,
+  auth,
+  ownSub,
+  upload.single('file'),
+  uploadSubImage
+)
+
+export default router
