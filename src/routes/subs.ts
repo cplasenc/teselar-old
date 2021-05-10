@@ -1,5 +1,5 @@
 import { isEmpty } from 'class-validator';
-import { Request, Response, Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository } from 'typeorm';
 import Post from '../entities/Post';
 import Sub from '../entities/Sub';
@@ -69,6 +69,24 @@ const getSub = async (req: Request, res: Response) => {
   }
 };
 
+const ownSub = async (req: Request, res: Response, next: NextFunction) => {
+  const user: User = res.locals.user
+
+  try {
+    const sub = await Sub.findOneOrFail({ where: { name: req.params.name }})
+
+    if(sub.username !== user.username) {
+      return res.status(403).json({ error: 'No eres el propietario de esta comunidad'})
+    }
+
+    res.locals.sub = sub
+    return next()
+
+  } catch (err) {
+    return res.status(500).json({ error: 'Error inesperado' })
+  }
+}
+
 const upload = multer({
   storage: multer.diskStorage({
     destination: 'public/images',
@@ -86,13 +104,32 @@ const upload = multer({
   }
 })
 
-const uploadSubImage = async (_: Request, res: Response) => {
+const uploadSubImage = async (req: Request, res: Response) => {
+  const sub: Sub = res.locals.sub
+  try {
+    const type = req.body.type
+
+    if(type !== 'image' && type !== 'banner'){
+      return res.status(400).json({ error: 'Formato erróneo' })
+    }
+
+    if(type === 'image') {
+      sub.imageUrn = req.file.filename
+    } else if(type === 'banner'){
+      sub.bannerUrn = req.file.filename
+    }
+    await sub.save()
+
+    return res.json(sub)
+  } catch (err) {
+    return res.status(500).json({ error: 'Error inesperado' })
+  }
   return res.json({ success: true })
 }
 
 const router = Router();
 router.post('/', user, auth, createSub);
 router.get('/:name', user, getSub);
-router.post('/:name/image', user, auth, upload.single('file'), uploadSubImage)
+router.post('/:name/image', user, auth, ownSub, upload.single('file'), uploadSubImage)
 
 export default router;
