@@ -4,6 +4,7 @@ import Entity from './Entity'
 import User from "./User";
 //import { makeId, slugify } from "../util/helpers";
 import Post from "./Post";
+import { Expose } from "class-transformer";
 
 @TypeORMEntity('subs')
 export default class Sub extends Entity {
@@ -37,4 +38,9 @@ export default class Sub extends Entity {
 
     @OneToMany(() => Post, post => post.sub)
     posts: Post[]
+
+    @Expose()
+    get bannerUrl(): string | undefined {
+        return this.bannerUrn ? `${process.env.APP_URL}/images/"${this.bannerUrn}` : undefined
+    }
 }
