@@ -15,7 +15,7 @@ module.exports = {
       return config;
     },
     images: {
-      domains: ['gravatar.com', 'localhost']
-    }
+      domains: ['www.gravatar.com', 'localhost']
+    },
   };
   
