@@ -14,7 +14,7 @@ const InputGroup: React.FC<InputGroupProps> = (props) => {
     <input
       type={props.type}
       className={classNames(
-        'w-full p-3 transition duration-300 border border-gray-300 rounded outline-none bg-gray-50 focus:bg-white hover:bg-white',
+        'w-full p-3 transition duration-200 border border-gray-300 rounded outline-none bg-gray-50 focus:bg-white hover:bg-white',
         { 'border-red-500': props.error }
       )}
       placeholder={props.placeholder}

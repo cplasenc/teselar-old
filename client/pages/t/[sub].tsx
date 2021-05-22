@@ -99,7 +99,7 @@ export default function SubPage() {
             </div>
             {/* Sub meta data*/}
             <div className='h-20 bg-white'>
-              <div className='container flex'>
+              <div className='container relative flex'>
                 <div className="absolute" style={{ top: -15 }}>
                 <Image
                   src={sub.imageUrl}
@@ -110,7 +110,7 @@ export default function SubPage() {
                   height={70}
                 />
                 </div>
-                <div className="pt-1 pl-24">
+                <div className="pt-1 pl-20">
                   <div className="flex items-center">
                     <h1 className='mb-1 font-bold text-3x1'>{sub.title}</h1>
                   </div>
