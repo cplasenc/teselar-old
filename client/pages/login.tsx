@@ -28,7 +28,8 @@ export default function Register() {
 
       dispatch('LOGIN', res.data)
 
-      router.push('/'); //redirigue a la página de inicio al hacer login
+      //router.push('/'); //redirigue a la página de inicio al hacer login
+      router.back() //redirigue a donde estabas al hacer login
     } catch (err) {
       console.log(err);
       setErrors(err.response.data);
