@@ -1,7 +1,9 @@
 //coleccion de rutas genéricas
 import { Request, Response, Router } from 'express';
+import { getConnection } from 'typeorm';
 import Comment from '../entities/Comment';
 import Post from '../entities/Post';
+import Sub from '../entities/Sub';
 import User from '../entities/User';
 import Vote from '../entities/Vote';
 import auth from '../middleware/auth';
@@ -62,7 +64,33 @@ const vote = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * consigue las comunidades más populares
+ * @param req 
+ * @param res 
+ * @returns 
+ */
+const topSubs = async (_: Request, res: Response) => {
+  const imageUrlExp = `COALESCE('${process.env.APP_URL}/images/' || s."imageUrn" , 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y')`
+  try {
+    const subs = await getConnection()
+      .createQueryBuilder()
+      .select(`s.title, s.name, ${imageUrlExp} as "imageUrl", count(p.id) as "postCount"`)
+      .from(Sub, 's')
+      .leftJoin(Post, 'p', `s.name = p."subName"`)
+      .groupBy('s.title, s.name, "imageUrl"')
+      .orderBy(`"postCount"`, 'DESC')
+      .limit(5)
+      .execute()
+
+      return res.json(subs)
+  } catch (err) {
+    return res.status(500).json({ error: 'Error inesperado '})
+  }
+}
+
 const router = Router();
 router.post('/vote', user, auth, vote);
+router.get('/top-subs', topSubs)
 
 export default router;
