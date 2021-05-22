@@ -120,8 +120,8 @@ export default function SubPage() {
           </div>
           {/* Posts y Sidebar */}
           <div className='container flex pt-5'>
-            <div className='w-160'></div>
-            {postsMarkup}
+            <div className='w-160'>{postsMarkup}</div>
+            
           </div>
         </Fragment>
       )}
