@@ -31,7 +31,6 @@ export default function Home() {
       <div className='container flex pt-4'>
         {/* entradas */}
         <div className='w-160'>
-          <h1>Envíos recientes</h1>
           {posts?.map((post) => (
             <PostCard post={post} key={post.identifier} />
           ))}
