@@ -5,13 +5,11 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { Post } from '../types';
 import Axios from 'Axios';
 import classNames from 'classnames';
+import ActionButton from './ActionButtons'
 
 //convierte la hora de creación de un post en relativa (hace 2 horas)
 dayjs.extend(relativeTime);
 
-const ActionButton = ({ children }) => {
-    return <div className='px-1 py-1 mr-1 text-xs text-gray-400 rounded cursor-pointer hover:bg-gray-200'>{children}</div>
-}
 
 interface PostCardProps {
     post: Post
@@ -19,7 +17,7 @@ interface PostCardProps {
 
 export default function PostCard({ post }: PostCardProps) {
 
-  const vote = async (value) => {
+  const vote = async (value: number) => {
     try {
       const res = await Axios.post('/misc/vote', {
         identifier: post.identifier,
