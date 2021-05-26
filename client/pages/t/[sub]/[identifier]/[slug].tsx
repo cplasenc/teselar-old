@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
-import { Post } from '../../../../types';
+import { Post, Comment } from '../../../../types';
 import Image from 'next/image';
 import Sidebar from '../../../../components/Sidebar';
 import Axios from 'Axios';
@@ -13,7 +13,7 @@ import { useAuthState } from '../../../../context/auth';
 import ActionButton from '../../../../components/ActionButtons';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
-dayjs.extend(relativeTime)
+dayjs.extend(relativeTime);
 
 export default function PostPage() {
   //Local state
@@ -27,21 +27,33 @@ export default function PostPage() {
   const { data: post, error } = useSWR<Post>(
     identifier && slug ? `/posts/${identifier}/${slug}` : null
   );
+
+  const { data: comments, revalidate } = useSWR<Comment[]>(
+    identifier && slug ? `/posts/${identifier}/${slug}/comments` : null
+  );
+
   if (error) router.push('/'); //redirigue a inicio si no existe el post
 
-  const vote = async (value: number) => {
+  const vote = async (value: number, comment?: Comment) => {
     //si votas y no estas autentificado redirigue a login
     if (!authenticated) router.push('/login');
 
     //si el vote es el mismo resetea el voto
-    if (value === post.userVote) value = 0;
+    if (
+      (!comment && value === post.userVote) ||
+      (comment && comment.userVote === value)
+    )
+      value = 0;
 
     try {
-      const res = await Axios.post('/misc/vote', {
+      await Axios.post('/misc/vote', {
         identifier: post.identifier,
         slug: post.slug,
+        commentIdentifier: comment?.identifier,
         value: value,
       });
+
+      revalidate() //actualiza automaticamente la UI al votar
     } catch (err) {
       console.log(err);
     }
@@ -75,74 +87,122 @@ export default function PostPage() {
         <div className='w-160'>
           <div className='bg-white rounded'>
             {post && (
-              <div className='flex'>
-                {/* votos */}
-                <div className='w-10 py-3 text-center rounded-l'>
-                  {/* upvote - voto positivo */}
-                  <div
-                    className='w-6 mx-auto text-gray-400 rounded cursor-pointer hover:bg-gray-300 hover:text-red-500'
-                    onClick={() => vote(1)}
-                  >
-                    <i
-                      className={classNames('fas fa-arrow-up', {
-                        'text-red-500': post.userVote === 1,
-                      })}
-                    ></i>
+              <>
+                <div className='flex'>
+                  {/* votos */}
+                  <div className='flex-shrink-0 w-10 py-2 text-center rounded-l'>
+                    {/* upvote - voto positivo */}
+                    <div
+                      className='w-6 mx-auto text-gray-400 rounded cursor-pointer hover:bg-gray-300 hover:text-red-500'
+                      onClick={() => vote(1)}
+                    >
+                      <i
+                        className={classNames('fas fa-arrow-up', {
+                          'text-red-500': post.userVote === 1,
+                        })}
+                      ></i>
+                    </div>
+                    <p className='text-xs font-bold'>{post.voteScore}</p>
+                    {/* downvote - voto negativo */}
+                    <div
+                      className='w-6 mx-auto text-gray-400 rounded cursor-pointer hover:bg-gray-300 hover:text-red-500'
+                      onClick={() => vote(-1)}
+                    >
+                      <i
+                        className={classNames('fas fa-arrow-down', {
+                          'text-blue-600': post.userVote === -1,
+                        })}
+                      ></i>
+                    </div>
                   </div>
-                  <p className='text-xs font-bold'>{post.voteScore}</p>
-                  {/* downvote - voto negativo */}
-                  <div
-                    className='w-6 mx-auto text-gray-400 rounded cursor-pointer hover:bg-gray-300 hover:text-red-500'
-                    onClick={() => vote(-1)}
-                  >
-                    <i
-                      className={classNames('fas fa-arrow-down', {
-                        'text-blue-600': post.userVote === -1,
-                      })}
-                    ></i>
-                  </div>
-                </div>
-                <div className='p-2'>
-                  <div className='flex items-center'>
-                    <p className='text-xs text-gray-500'>
-                      Enviado por
-                      <Link href={`/u/${post.username}`}>
-                        <a className='mx-1 hover:underline'>
-                          /u/{post.username}
-                        </a>
-                      </Link>
+                  <div className='py-2 pr-2'>
+                    <div className='flex items-center'>
+                      <p className='text-xs text-gray-500'>
+                        Enviado por
+                        <Link href={`/u/${post.username}`}>
+                          <a className='mx-1 hover:underline'>
+                            /u/{post.username}
+                          </a>
+                        </Link>
+                        <Link href={post.url}>
+                          <a className='mx-1 hover:underline'>
+                            {dayjs(post.createdAt).fromNow()}
+                          </a>
+                        </Link>
+                      </p>
+                    </div>
+                    {/* Post titulo */}
+                    <h1 className='my-1 text-xl font-medium'>{post.title}</h1>
+                    {/* Post body */}
+                    <p className='my-3 text-sm'>{post.body}</p>
+                    {/* Botones de acción */}
+                    <div className='flex'>
                       <Link href={post.url}>
-                        <a className='mx-1 hover:underline'>
-                          {dayjs(post.createdAt).fromNow()}
+                        <a>
+                          {/* comentarios*/}
+                          <ActionButton>
+                            <i className='mr-1 fas fa-comments fa-xs'></i>
+                            <span className='font-bold'>
+                              {post.commentCount} comentarios
+                            </span>
+                          </ActionButton>
                         </a>
                       </Link>
-                    </p>
-                  </div>
-                  {/* Post titulo */}
-                  <h1 className='my-1 text-xl font-medium'>{post.title}</h1>
-                  {/* Post body */}
-                  <p className='my-3 text-sm'>{post.body}</p>
-                  {/* Botones de acción */}
-                  <div className='flex'>
-                    <Link href={post.url}>
-                      <a>
-                        {/* comentarios*/}
-                        <ActionButton>
-                          <i className='mr-1 fas fa-comments fa-xs'></i>
-                          <span className='font-bold'>
-                            {post.commentCount} comentarios
-                          </span>
-                        </ActionButton>
-                      </a>
-                    </Link>
-                    {/* compartir*/}
-                    <ActionButton>
-                      <i className='mr-1 fas fa-share fa-xs'></i>
-                      <span className='font-bold'>Compartir</span>
-                    </ActionButton>
+                      {/* compartir*/}
+                      <ActionButton>
+                        <i className='mr-1 fas fa-share fa-xs'></i>
+                        <span className='font-bold'>Compartir</span>
+                      </ActionButton>
+                    </div>
                   </div>
                 </div>
-              </div>
+                <hr />
+                {comments?.map((comment) => (
+                  <div className='flex' key={comment.identifier}>
+                    {/** Votos */}
+                    <div className='flex-shrink-0 w-10 py-2 text-center rounded-l'>
+                      {/* upvote - voto positivo */}
+                      <div
+                        className='w-6 mx-auto text-gray-400 rounded cursor-pointer hover:bg-gray-300 hover:text-red-500'
+                        onClick={() => vote(1, comment)}
+                      >
+                        <i
+                          className={classNames('fas fa-arrow-up', {
+                            'text-red-500': comment.userVote === 1,
+                          })}
+                        ></i>
+                      </div>
+                      <p className='text-xs font-bold'>{comment.voteScore}</p>
+                      {/* downvote - voto negativo */}
+                      <div
+                        className='w-6 mx-auto text-gray-400 rounded cursor-pointer hover:bg-gray-300 hover:text-red-500'
+                        onClick={() => vote(-1, comment)}
+                      >
+                        <i
+                          className={classNames('fas fa-arrow-down', {
+                            'text-blue-600': comment.userVote === -1,
+                          })}
+                        ></i>
+                      </div>
+                    </div>
+                    <div className="py-2 pr-2">
+                      <p className="mb-1 text-xs leading-none">
+                        <Link href={`/u/${comment.username}`}>
+                          <a className='mr-1 font-bold hover:underline'>{comment.username}</a>
+                        </Link>
+                        <span className='text-gray-600'>
+                          {`
+                          ${comment.voteScore}
+                          puntos •
+                          ${dayjs(comment.createdAt).fromNow()}
+                          `}
+                        </span>
+                      </p>
+                      <p>{comment.body}</p>
+                    </div>
+                  </div>
+                ))}
+              </>
             )}
           </div>
         </div>

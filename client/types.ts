@@ -37,3 +37,14 @@ export interface Sub {
     bannerUrl: string
     postCount?: number
 }
+
+export interface Comment {
+    "identifier": string
+    "body": string
+    "username": number
+    "createdAt": string
+    "updatedAt": string
+    //virtuals
+    "userVote": number
+    "voteScore": number
+}
