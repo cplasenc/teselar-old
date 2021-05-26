@@ -19,7 +19,7 @@ export default function PostPage() {
   //Local state
 
   //Global state
-  const { authenticated } = useAuthState();
+  const { authenticated, user } = useAuthState();
 
   const router = useRouter();
   const { identifier, sub, slug } = router.query;
@@ -155,6 +155,28 @@ export default function PostPage() {
                       </ActionButton>
                     </div>
                   </div>
+                </div>
+                {/** Caja de comentarios */}
+                <div className='pl-10 pr-6 mb-4'>
+                  {authenticated ? (
+                    <div>
+                      <p className='mb-1 text-xs'>
+                        Comentar como <Link href={`/u/${user.username}`}>
+                          <a className='font-semibold text-blue-500'>{user.username}</a>
+                        </Link>
+                        </p>
+                    </div>
+                  ) : <div className="flex items-center justify-between px-2 py-4 border border-gray-200 rounded">
+                    <p className='font-semibold text-gray-500'>Inicia sesión para comentar</p>
+                    <div>
+                      <Link href='/login'>
+                        <a className='px-4 py-1 mr-4 hollow blue button'>Iniciar sesión</a>
+                      </Link>
+                      <Link href='/register'>
+                        <a className='px-4 py-1 blue button'>Registrarme</a>
+                      </Link>
+                    </div>
+                  </div> }
                 </div>
                 <hr />
                 {comments?.map((comment) => (
