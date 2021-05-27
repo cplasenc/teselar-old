@@ -12,11 +12,13 @@ import classNames from 'classnames';
 import { useAuthState } from '../../../../context/auth';
 import ActionButton from '../../../../components/ActionButtons';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { FormEvent, useState } from 'react';
 
 dayjs.extend(relativeTime);
 
 export default function PostPage() {
   //Local state
+  const [newComment, setNewComment] = useState('');
 
   //Global state
   const { authenticated, user } = useAuthState();
@@ -53,7 +55,24 @@ export default function PostPage() {
         value: value,
       });
 
-      revalidate() //actualiza automaticamente la UI al votar
+      revalidate(); //actualiza automaticamente la UI al votar
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const submitComment = async (event: FormEvent) => {
+    event.preventDefault();
+    if (newComment.trim() === '') return;
+
+    try {
+      await Axios.post(`/posts/${post.identifier}/${post.slug}/comments`, {
+        body: newComment,
+      });
+
+      setNewComment('')
+
+      revalidate() //actualiza la pagina al enviar un comentario
     } catch (err) {
       console.log(err);
     }
@@ -161,22 +180,43 @@ export default function PostPage() {
                   {authenticated ? (
                     <div>
                       <p className='mb-1 text-xs'>
-                        Comentar como <Link href={`/u/${user.username}`}>
-                          <a className='font-semibold text-blue-500'>{user.username}</a>
+                        Comentar como{' '}
+                        <Link href={`/u/${user.username}`}>
+                          <a className='font-semibold text-blue-500'>
+                            {user.username}
+                          </a>
                         </Link>
-                        </p>
+                      </p>
+                      <form onSubmit={submitComment}>
+                        <textarea
+                          className='w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-gray-600'
+                          onChange={(e) => setNewComment(e.target.value)}
+                          value={newComment}
+                        ></textarea>
+                        <div className='flex justify-end'>
+                          <button className='px-3 py-1 blue button' disabled={newComment.trim() === ''}>
+                            Comentar
+                          </button>
+                        </div>
+                      </form>
                     </div>
-                  ) : <div className="flex items-center justify-between px-2 py-4 border border-gray-200 rounded">
-                    <p className='font-semibold text-gray-500'>Inicia sesión para comentar</p>
-                    <div>
-                      <Link href='/login'>
-                        <a className='px-4 py-1 mr-4 hollow blue button'>Iniciar sesión</a>
-                      </Link>
-                      <Link href='/register'>
-                        <a className='px-4 py-1 blue button'>Registrarme</a>
-                      </Link>
+                  ) : (
+                    <div className='flex items-center justify-between px-2 py-4 border border-gray-200 rounded'>
+                      <p className='mr-3 font-semibold text-gray-500'>
+                        Inicia sesión para comentar
+                      </p>
+                      <div>
+                        <Link href='/login'>
+                          <a className='px-4 py-1 mr-1 hollow blue button'>
+                            Iniciar sesión
+                          </a>
+                        </Link>
+                        <Link href='/register'>
+                          <a className='px-4 py-1 blue button'>Registrarme</a>
+                        </Link>
+                      </div>
                     </div>
-                  </div> }
+                  )}
                 </div>
                 <hr />
                 {comments?.map((comment) => (
@@ -207,10 +247,12 @@ export default function PostPage() {
                         ></i>
                       </div>
                     </div>
-                    <div className="py-2 pr-2">
-                      <p className="mb-1 text-xs leading-none">
+                    <div className='py-2 pr-2'>
+                      <p className='mb-1 text-xs leading-none'>
                         <Link href={`/u/${comment.username}`}>
-                          <a className='mr-1 font-bold hover:underline'>{comment.username}</a>
+                          <a className='mr-1 font-bold hover:underline'>
+                            {comment.username}
+                          </a>
                         </Link>
                         <span className='text-gray-600'>
                           {`
