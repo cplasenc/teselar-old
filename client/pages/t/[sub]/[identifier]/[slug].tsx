@@ -83,7 +83,7 @@ export default function PostPage() {
       <Head>
         <title>{post?.title}</title>
       </Head>
-      <Link href={`/r/${sub}`}>
+      <Link href={`/t/${sub}`}>
         <a>
           <div className='flex items-center w-full h-20 p-8 bg-blue-500'>
             <div className='container flex'>
@@ -143,6 +143,7 @@ export default function PostPage() {
                             /u/{post.username}
                           </a>
                         </Link>
+                        <span>•</span>
                         <Link href={post.url}>
                           <a className='mx-1 hover:underline'>
                             {dayjs(post.createdAt).fromNow()}
