@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import React, { FormEvent, useState } from 'react';
 import useSWR from 'swr';
 import Sidebar from '../../../components/Sidebar';
-import { Sub } from '../../../types';
+import { Post, Sub } from '../../../types';
 import Axios from 'Axios'
 
 export default function submit() {
@@ -23,7 +23,9 @@ export default function submit() {
     if (title.trim() === '') return;
 
     try {
-      await Axios.post('/posts', { title: title.trim(), body, sub: sub.name });
+      const { data: post } = await Axios.post<Post>('/posts', { title: title.trim(), body, sub: sub.name });
+
+      router.push(`/t/${sub.name}/${post.identifier}/${post.slug}`) //te redirigue al post una vez enviado el post
     } catch (err) {
         console.log(err)
     }
@@ -55,6 +57,7 @@ export default function submit() {
             <textarea
               className='w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-gray-600'
               value={body}
+              onChange={e => setBody(e.target.value)}
               placeholder='Texto (opcional)'
               rows={4}
             ></textarea>
