@@ -39,12 +39,13 @@ export interface Sub {
 }
 
 export interface Comment {
-    "identifier": string
-    "body": string
-    "username": number
-    "createdAt": string
-    "updatedAt": string
+    identifier: string
+    body: string
+    username: number
+    createdAt: string
+    updatedAt: string
+    post?: Post
     //virtuals
-    "userVote": number
-    "voteScore": number
+    userVote: number
+    voteScore: number
 }
