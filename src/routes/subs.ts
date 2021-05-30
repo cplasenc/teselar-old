@@ -12,134 +12,164 @@ import path from 'path';
 import fs from 'fs';
 
 const createSub = async (req: Request, res: Response) => {
-  const { name, title, description } = req.body
+  const { name, title, description } = req.body;
 
-  const user: User = res.locals.user
+  const user: User = res.locals.user;
 
   try {
-    let errors: any = {}
-    if (isEmpty(name)) errors.name = 'Name must not be empty'
-    if (isEmpty(title)) errors.title = 'Title must not be empty'
+    let errors: any = {};
+    if (isEmpty(name)) errors.name = 'Name must not be empty';
+    if (isEmpty(title)) errors.title = 'Title must not be empty';
 
     const sub = await getRepository(Sub)
       .createQueryBuilder('sub')
       .where('lower(sub.name) = :name', { name: name.toLowerCase() })
-      .getOne()
+      .getOne();
 
-    if (sub) errors.name = 'Sub exists already'
+    if (sub) errors.name = 'Sub exists already';
 
     if (Object.keys(errors).length > 0) {
-      throw errors
+      throw errors;
     }
   } catch (err) {
-    return res.status(400).json(err)
+    return res.status(400).json(err);
   }
 
   try {
-    const sub = new Sub({ name, description, title, user })
-    await sub.save()
+    const sub = new Sub({ name, description, title, user });
+    await sub.save();
 
-    return res.json(sub)
+    return res.json(sub);
   } catch (err) {
-    console.log(err)
-    return res.status(500).json({ error: 'Something went wrong' })
+    console.log(err);
+    return res.status(500).json({ error: 'Something went wrong' });
   }
-}
+};
 
 const getSub = async (req: Request, res: Response) => {
-  const name = req.params.name
+  const name = req.params.name;
 
   try {
-    const sub = await Sub.findOneOrFail({ name })
+    const sub = await Sub.findOneOrFail({ name });
     const posts = await Post.find({
       where: { sub },
       order: { createdAt: 'DESC' },
       relations: ['comments', 'votes'],
-    })
+    });
 
-    sub.posts = posts
+    sub.posts = posts;
 
     if (res.locals.user) {
-      sub.posts.forEach((p) => p.setUserVote(res.locals.user))
+      sub.posts.forEach((p) => p.setUserVote(res.locals.user));
     }
 
-    return res.json(sub)
+    return res.json(sub);
   } catch (err) {
-    console.log(err)
-    return res.status(404).json({ sub: 'Sub not found' })
+    console.log(err);
+    return res.status(404).json({ sub: 'Sub not found' });
   }
-}
+};
 
 const ownSub = async (req: Request, res: Response, next: NextFunction) => {
-  const user: User = res.locals.user
+  const user: User = res.locals.user;
 
   try {
-    const sub = await Sub.findOneOrFail({ where: { name: req.params.name } })
+    const sub = await Sub.findOneOrFail({ where: { name: req.params.name } });
 
     if (sub.username !== user.username) {
-      return res.status(403).json({ error: 'You dont own this sub' })
+      return res.status(403).json({ error: 'You dont own this sub' });
     }
 
-    res.locals.sub = sub
-    return next()
+    res.locals.sub = sub;
+    return next();
   } catch (err) {
-    return res.status(500).json({ error: 'Something went wrong' })
+    return res.status(500).json({ error: 'Something went wrong' });
   }
-}
+};
 
 const upload = multer({
   storage: multer.diskStorage({
     destination: 'public/images',
     filename: (_, file, callback) => {
-      const name = makeId(15)
-      callback(null, name + path.extname(file.originalname)) // e.g. jh34gh2v4y + .png
+      const name = makeId(15);
+      callback(null, name + path.extname(file.originalname)); // e.g. jh34gh2v4y + .png
     },
   }),
   fileFilter: (_, file: any, callback: FileFilterCallback) => {
     if (file.mimetype == 'image/jpeg' || file.mimetype == 'image/png') {
-      callback(null, true)
+      callback(null, true);
     } else {
-      callback(new Error('Not an image'))
+      callback(new Error('Not an image'));
     }
   },
-})
+});
 
 const uploadSubImage = async (req: Request, res: Response) => {
-  const sub: Sub = res.locals.sub
+  const sub: Sub = res.locals.sub;
   try {
-    const type = req.body.type
-    console.log(req.file)
+    const type = req.body.type;
+    console.log(req.file);
 
     if (type !== 'image' && type !== 'banner') {
-      fs.unlinkSync(req.file.path)
-      return res.status(400).json({ error: 'Invalid type' })
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: 'Invalid type' });
     }
 
-    let oldImageUrn: string = ''
+    let oldImageUrn: string = '';
     if (type === 'image') {
-      oldImageUrn = sub.imageUrn ?? ''
-      sub.imageUrn = req.file.filename
+      oldImageUrn = sub.imageUrn ?? '';
+      sub.imageUrn = req.file.filename;
     } else if (type === 'banner') {
-      oldImageUrn = sub.bannerUrn ?? ''
-      sub.bannerUrn = req.file.filename
+      oldImageUrn = sub.bannerUrn ?? '';
+      sub.bannerUrn = req.file.filename;
     }
-    await sub.save()
+    await sub.save();
 
     if (oldImageUrn !== '') {
-      fs.unlinkSync(`public\\images\\${oldImageUrn}`)
+      fs.unlinkSync(`public\\images\\${oldImageUrn}`);
     }
 
-    return res.json(sub)
+    return res.json(sub);
   } catch (err) {
-    console.log(err)
-    return res.status(500).json({ error: 'Something went wrong' })
+    console.log(err);
+    return res.status(500).json({ error: 'Something went wrong' });
   }
-}
+};
 
-const router = Router()
+/**
+ * buscar comunidades
+ * @param req
+ * @param res
+ */
+const searchSubs = async (req: Request, res: Response) => {
+  try {
+    const name = req.params.name;
 
-router.post('/', user, auth, createSub)
-router.get('/:name', user, getSub)
+    if (isEmpty(name)) {
+      return res.status(400).json({ error: 'El nombre no puede estar vacío' });
+    }
+
+    //reactJS, reactjs
+    const subs = await getRepository(Sub)
+      .createQueryBuilder()
+      //realiza la busqueda
+      .where('LOWER(name) LIKE :name', {
+        name: `${name.toLowerCase().trim()}%`,
+      })
+      .getMany();
+
+    return res.json(subs);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: 'Error inesperado' });
+  }
+};
+
+const router = Router();
+
+router.post('/', user, auth, createSub);
+router.get('/:name', user, getSub);
+router.get('/search/:name', searchSubs);
 router.post(
   '/:name/image',
   user,
@@ -147,6 +177,6 @@ router.post(
   ownSub,
   upload.single('file'),
   uploadSubImage
-)
+);
 
-export default router
+export default router;
