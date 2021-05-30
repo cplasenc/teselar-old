@@ -5,6 +5,7 @@ import useSWR from 'swr';
 import Sidebar from '../../../components/Sidebar';
 import { Post, Sub } from '../../../types';
 import Axios from 'Axios'
+import { GetServerSideProps } from 'next';
 
 export default function submit() {
   const [title, setTitle] = useState('');
@@ -74,4 +75,23 @@ export default function submit() {
       {sub && <Sidebar sub={sub} />}
     </div>
   );
+}
+
+/**
+ * Server Side para comprobar si el usuario está logueado
+ * si no está logueado no ve esta página (submit)
+ * @param param0 
+ * @returns 
+ */
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  try {
+    const cookie = req.headers.cookie
+    if(!cookie) throw new Error('No se ha encontrado token de autenticación en la cookie')
+
+    await Axios.get('/auth/me', { headers: { cookie }})
+
+    return { props: {} }
+  } catch (err) {
+    res.writeHead(307, { Location: '/login' }).end()
+  }
 }
