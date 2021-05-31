@@ -2,13 +2,14 @@ import Link from 'next/link';
 //import Logo from '../images/logo.svg';
 import { useAuthState, useAuthDispatch } from '../context/auth';
 import Axios from 'Axios';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Sub } from '../types';
 import Image from 'next/image';
 
 const Navbar: React.FC = () => {
   const [name, setName] = useState('');
   const [subs, setSubs] = useState<Sub[]>([]);
+  const [timer, setTimer] = useState(null);
 
   const { authenticated, loading } = useAuthState();
   const dispatch = useAuthDispatch();
@@ -22,16 +23,31 @@ const Navbar: React.FC = () => {
       .catch((err) => console.log(err));
   };
 
-  const searchSubs = async (subName: string) => {
-    setName(subName);
-
-    try {
-      const { data } = await Axios.get(`/subs/search/${subName}`);
-      setSubs(data);
-      console.log(data);
-    } catch (err) {
-      console.log(err);
+  /**
+   * Se ejecuta cada vez que name cambia
+   */
+  useEffect(() => {
+    if (name.trim() === '') {
+      setSubs([]);
+      return;
     }
+    searchSubs();
+  }, [name]);
+
+  const searchSubs = async () => {
+    //la busqueda se ejecuta cada 250ms para evitar una petición por letra introducida
+    clearTimeout(timer)
+    setTimer(
+      setTimeout(async () => {
+        try {
+          const { data } = await Axios.get(`/subs/search/${name}`);
+          setSubs(data);
+          console.log(data);
+        } catch (err) {
+          console.log(err);
+        }
+      }, 250)
+    );
   };
 
   return (
@@ -56,7 +72,8 @@ const Navbar: React.FC = () => {
           placeholder='Buscar...'
           className='py-1 pr-3 bg-transparent rounded w-160 focus:outline-none'
           value={name}
-          onChange={(e) => searchSubs(e.target.value)} //busqueda rapida - demasiadas requests
+          //onChange={(e) => searchSubs(e.target.value)} //busqueda rapida - demasiadas requests
+          onChange={(e) => setName(e.target.value)}
         />
         {/** resultados de busqueda */}
         <div
@@ -72,8 +89,8 @@ const Navbar: React.FC = () => {
                 height={(8 * 16) / 4}
                 width={(8 * 16) / 4}
               />
-              <div className="ml-4 text-sm">
-                <p className="font-medium">{sub.name}</p>
+              <div className='ml-4 text-sm'>
+                <p className='font-medium'>{sub.name}</p>
                 <p className='text-gray-600'>{sub.title}</p>
               </div>
             </div>
