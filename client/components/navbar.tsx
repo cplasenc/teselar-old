@@ -5,6 +5,7 @@ import Axios from 'Axios';
 import { Fragment, useEffect, useState } from 'react';
 import { Sub } from '../types';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 const Navbar: React.FC = () => {
   const [name, setName] = useState('');
@@ -14,6 +15,8 @@ const Navbar: React.FC = () => {
   const { authenticated, loading } = useAuthState();
   const dispatch = useAuthDispatch();
 
+  const router = useRouter()
+  
   const logout = () => {
     Axios.get('/auth/logout')
       .then(() => {
@@ -50,6 +53,11 @@ const Navbar: React.FC = () => {
     );
   };
 
+  const goToSub = (subName: string) => {
+    router.push(`/t/${subName}`)
+    setName('') //cierra los resultados de la busqueda
+  }
+
   return (
     <div className='fixed inset-x-0 top-0 z-10 flex items-center justify-center h-12 px-5 bg-white'>
       {/* Logo y título */}
@@ -81,7 +89,8 @@ const Navbar: React.FC = () => {
           style={{ top: '100%' }}
         >
           {subs?.map((sub) => (
-            <div className='flex items-center px-4 py-3 cursor-pointer hover:bg-gray-200'>
+            <div className='flex items-center px-4 py-3 cursor-pointer hover:bg-gray-200'
+                  onClick={() => goToSub(sub.name)}>
               <Image
                 src={sub.imageUrl}
                 className='rounded-full'
