@@ -7,6 +7,7 @@ import PostCard from '../components/PostCard';
 import useSWR from 'swr';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useAuthState } from '../context/auth';
 
 //convierte la hora de creación de un post en relativa (hace 2 horas)
 dayjs.extend(relativeTime);
@@ -22,6 +23,8 @@ export default function Home() {
   }, []);*/
   const { data: posts } = useSWR<Post[]>('/posts');
   const { data: topSubs } = useSWR<Sub[]>('/misc/top-subs');
+
+  const { authenticated } = useAuthState()
 
   return (
     <Fragment>
@@ -69,6 +72,16 @@ export default function Home() {
                 </div>
               ))}
             </div>
+            {authenticated && (
+            <div className="p-4 b-t-2">
+              <Link href="/subs/create">
+                <a className='w-full px-2 blue button'>
+                  Crear comunidad
+                </a>
+              </Link>
+            </div>
+
+            )}
           </div>
         </div>
       </div>

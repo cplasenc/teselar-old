@@ -80,7 +80,7 @@ export default function submit() {
 /**
  * Server Side para comprobar si el usuario está logueado
  * si no está logueado no ve esta página (submit)
- * @param param0 
+ * @param 
  * @returns 
  */
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
