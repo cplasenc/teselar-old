@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { Fragment } from 'react';
-import { Sub } from '../types';
+import { Post, Sub } from '../types';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import PostCard from '../components/PostCard';
@@ -20,8 +20,8 @@ export default function Home() {
       .then((res) => setPosts(res.data))
       .catch((err) => console.log(err));
   }, []);*/
-  const { data: posts } = useSWR('/posts');
-  const { data: topSubs } = useSWR('/misc/top-subs');
+  const { data: posts } = useSWR<Post[]>('/posts');
+  const { data: topSubs } = useSWR<Sub[]>('/misc/top-subs');
 
   return (
     <Fragment>
@@ -44,12 +44,13 @@ export default function Home() {
               </p>
             </div>
             <div>
-              {topSubs?.map((sub: Sub) => (
+              {topSubs?.map((sub) => (
                 <div
                   key={sub.name}
                   className='flex items-center px-4 py-2 text-xs border-b'
                 >
                   <Link href={`/t/${sub.name}`}>
+                    <a>
                     <Image
                       src={sub.imageUrl}
                       className='rounded-full cursor-pointer'
@@ -57,6 +58,7 @@ export default function Home() {
                       width={(6 * 16) / 4}
                       height={(6 * 16) / 4}
                     />
+                    </a>
                   </Link>
                   <Link href={`/t/${sub.name}`}>
                     <a className='ml-2 font-bold hover:cursor-pointer'>
