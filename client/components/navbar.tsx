@@ -59,7 +59,7 @@ const Navbar: React.FC = () => {
   }
 
   return (
-    <div className='fixed inset-x-0 top-0 z-10 flex items-center justify-center h-12 px-5 bg-white'>
+    <div className='fixed inset-x-0 top-0 z-10 flex items-center justify-between h-12 px-5 bg-white'>
       {/* Logo y título */}
       <div className='flex items-center'>
         <Link href='/'>
@@ -67,18 +67,19 @@ const Navbar: React.FC = () => {
             {/*<Logo classname='w-8 h-8 mr-2' />*/} {/* SVG LOGO */}
           </a>
         </Link>
-        <span className='font-semibold text-2x1'>
+        <span className='hidden font-semibold text-2x1 lg:block'>
           <Link href='/'>Teselar</Link>
         </span>
       </div>
 
       {/* Busqueda */}
-      <div className='relative flex items-center mx-auto bg-gray-100 border rounded hover:border-blue-500 hover:bg-white'>
+      <div className="max-w-full px-4 w-160">
+        <div className='relative flex items-center bg-gray-100 border rounded hover:border-blue-500 hover:bg-white'>
         <i className='pl-4 pr-3 text-gray-500 fas fa-search'></i>
         <input
           type='text'
           placeholder='Buscar...'
-          className='py-1 pr-3 bg-transparent rounded w-160 focus:outline-none'
+          className='py-1 pr-3 bg-transparent rounded focus:outline-none'
           value={name}
           //onChange={(e) => searchSubs(e.target.value)} //busqueda rapida - demasiadas requests
           onChange={(e) => setName(e.target.value)}
@@ -106,6 +107,8 @@ const Navbar: React.FC = () => {
           ))}
         </div>
       </div>
+      </div>
+      
 
       {/* botones login-registro */}
       <div className='flex'>
@@ -113,7 +116,7 @@ const Navbar: React.FC = () => {
           (authenticated ? (
             //mostrar logout
             <button
-              className='w-32 py-1 mr-4 leading-5 hollow blue button'
+              className='hidden w-20 py-1 mr-4 leading-5 sm:block lg:w-32 hollow blue button'
               onClick={logout}
             >
               Salir
@@ -121,12 +124,12 @@ const Navbar: React.FC = () => {
           ) : (
             <Fragment>
               <Link href='/login'>
-                <a className='w-32 py-1 mr-4 leading-5 hollow blue button'>
+                <a className='hidden w-20 py-1 mr-4 leading-5 sm:block lg:w-32 hollow blue button'>
                   Entrar
                 </a>
               </Link>
               <Link href='/register'>
-                <a className='w-32 py-1 mr-4 leading-5 blue button'>
+                <a className='hidden w-20 py-1 mr-4 leading-5 sm:block lg:w-32 blue button'>
                   Registrarse
                 </a>
               </Link>
