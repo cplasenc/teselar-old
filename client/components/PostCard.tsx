@@ -13,19 +13,37 @@ import { useRouter } from 'next/router';
 dayjs.extend(relativeTime);
 
 interface PostCardProps {
-  post: Post
-  revalidate?: Function
+  post: Post;
+  revalidate?: Function;
 }
 
-export default function PostCard({ post: { identifier, slug, title, body, subName, createdAt, voteScore, userVote, commentCount, url, username }, revalidate }: PostCardProps) {
+export default function PostCard({
+  post: {
+    identifier,
+    slug,
+    title,
+    body,
+    subName,
+    createdAt,
+    voteScore,
+    userVote,
+    commentCount,
+    url,
+    username,
+    sub,
+  },
+  revalidate,
+}: PostCardProps) {
   const { authenticated } = useAuthState();
 
   const router = useRouter();
 
+  const isInSubPage = router.pathname === '/t/[sub]'; // /t/[sub]
+
   const vote = async (value: number) => {
     if (!authenticated) router.push('/login');
 
-    if(value === userVote) value = 0
+    if (value === userVote) value = 0;
 
     try {
       const res = await Axios.post('/misc/vote', {
@@ -34,8 +52,7 @@ export default function PostCard({ post: { identifier, slug, title, body, subNam
         value: value,
       });
 
-      if(revalidate) revalidate()
-      
+      if (revalidate) revalidate();
     } catch (err) {
       console.log(err);
     }
@@ -76,19 +93,23 @@ export default function PostCard({ post: { identifier, slug, title, body, subNam
       {/* Post */}
       <div className='w-full p-2'>
         <div className='flex items-center'>
-          <Link href={`/r/${subName}`}>
-            <img
-              src='https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
-              className='w-6 h-6 mr-1 rounded-full cursor-pointer'
-            />
-          </Link>
-          <Link href={`/t/${subName}`}>
-            <a className='text-xs font-bold hover:underline'>
-              /t/{subName}
-            </a>
-          </Link>
+          {!isInSubPage && (
+            <>
+              <Link href={`/r/${subName}`}>
+                <img
+                  src={sub.imageUrl}
+                  className='w-6 h-6 mr-1 rounded-full cursor-pointer'
+                />
+              </Link>
+              <Link href={`/t/${subName}`}>
+                <a className='text-xs font-bold hover:underline'>
+                  /t/{subName}
+                </a>
+              </Link>
+              <span className='mx-1 text-xs text-gray-500'>•</span>
+            </>
+          )}
           <p className='text-xs text-gray-500'>
-            <span className='mx-1'>•</span>
             Enviado por
             <Link href={`/u/${username}`}>
               <a className='mx-1 hover:underline'>/u/{username}</a>
@@ -111,9 +132,7 @@ export default function PostCard({ post: { identifier, slug, title, body, subNam
               {/* comentarios*/}
               <ActionButton>
                 <i className='mr-1 fas fa-comments fa-xs'></i>
-                <span className='font-bold'>
-                  {commentCount} comentarios
-                </span>
+                <span className='font-bold'>{commentCount} comentarios</span>
               </ActionButton>
             </a>
           </Link>
