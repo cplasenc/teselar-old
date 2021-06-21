@@ -13,6 +13,9 @@ import { useAuthState } from '../context/auth';
 dayjs.extend(relativeTime);
 
 export default function Home() {
+  const title = 'Teselar: reddit clone'
+  const description = 'descripcion de la web'
+
   /*sustituido para usar SWR
   const [posts, setPosts] = useState<Post[]>([]);
 
@@ -79,7 +82,12 @@ export default function Home() {
   return (
     <Fragment>
       <Head>
-        <title>Teselar: bla bla bla</title>
+        <title>{title}</title>
+        <meta name="description" content={description}></meta>
+        <meta property="og:title" content={title}></meta>
+        <meta property="og:description" content={description}></meta>
+        <meta property="twitter:title" content={title}></meta>
+        <meta property="twitter:description" content={description}></meta>
       </Head>
       <div className='container flex pt-4'>
         {/* entradas */}

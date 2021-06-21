@@ -12,13 +12,15 @@ import classNames from 'classnames';
 import { useAuthState } from '../../../../context/auth';
 import ActionButton from '../../../../components/ActionButtons';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 
 dayjs.extend(relativeTime);
 
 export default function PostPage() {
   //Local state
   const [newComment, setNewComment] = useState('');
+
+  const [description, setDescription] = useState('')
 
   //Global state
   const { authenticated, user } = useAuthState();
@@ -35,6 +37,13 @@ export default function PostPage() {
   );
 
   if (error) router.push('/'); //redirigue a inicio si no existe el post
+
+  useEffect(() => {
+    if(!post) return
+    let desc = post.body || post.title
+    desc = desc.substring(0, 158).concat('..') //si tiene más de 158 caracteres muestra ... = bla bla bla...
+    setDescription(desc)
+  }, [post])
 
   const vote = async (value: number, comment?: Comment) => {
     //si votas y no estas autentificado redirigue a login
@@ -82,6 +91,11 @@ export default function PostPage() {
     <>
       <Head>
         <title>{post?.title}</title>
+        <meta name="description" content={description}></meta>
+        <meta property="og:title" content={post?.title}></meta>
+        <meta property="og:description" content={description}></meta>
+        <meta property="twitter:title" content={post?.title}></meta>
+        <meta property="twitter:description" content={description}></meta>
       </Head>
       <Link href={`/t/${sub}`}>
         <a>

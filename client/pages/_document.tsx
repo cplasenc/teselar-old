@@ -16,6 +16,16 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
+          <title>Teselar</title>
+          {/* metatags */}
+          <meta property="og:site:name" content="teselar"></meta>
+          {/*<meta property="twitter:site" content="@teselar"></meta>*/}
+          <meta property="twitter:card" content="summary"></meta>
+          <meta property="og:type" content="website"></meta>
+          <meta property="og:image" content={`${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/teselar.svg`}></meta>
+          <meta property="twitter:image" content={`${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/teselar.svg`}></meta>
+          {/** favicon */}
+          <link rel='icon' type="image/svg+xml" href="/teselar.svg"></link>
           {/* fuente */}
           <link rel='preconnect' href='https://fonts.gstatic.com' />
           <link

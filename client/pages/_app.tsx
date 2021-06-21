@@ -6,8 +6,8 @@ import { Fragment } from 'react';
 import { useRouter } from 'next/router';
 import { AuthProvider } from '../context/auth';
 import { SWRConfig } from 'swr';
-
-Axios.defaults.baseURL = 'http://localhost:5000/api'; //url base que llama cada vez que se usa axios
+ //url base que llama cada vez que se usa axios
+Axios.defaults.baseURL = process.env.NEXT_PUBLIC_SERVER_BASE_URL + '/api';
 Axios.defaults.withCredentials = true;
 
 const fetcher = async (url: string) => {
