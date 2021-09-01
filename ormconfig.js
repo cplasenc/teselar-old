@@ -1,3 +1,5 @@
+const rootDir = process.env.NODE_ENV === 'development' ? 'src' : 'build'
+
 module.exports = {
    "type": process.env.DB_DIALECT,
    "host": process.env.DB_HOST,
@@ -6,20 +8,20 @@ module.exports = {
    "password": process.env.DB_PASSWORD,
    "database": process.env.DB_DATABASE,
    "synchronize": true,
-   "logging": true,
-   "entities": [
-      "src/entities/**/*.ts"
+   "logging": process.env.NODE_ENV === 'development',
+   "entities": [rootDir + 
+      "/entities/**/*{.ts,.js}"
    ],
-   "migrations": [
-      "src/migrations/**/*.ts"
+   "migrations": [rootDir + 
+      "/migrations/**/*{.ts,.js}"
    ],
-   "subscribers": [
-      "src/subscribers/**/*.ts"
+   "subscribers": [rootDir + 
+      "/subscribers/**/*{.ts,.js}"
    ],
-   "seeds": ["src/seeds/**/*{.ts,.js}"],
+   "seeds": [rootDir + "/seeds/**/*{.ts,.js}"],
    "cli": {
-      "entitiesDir": "src/entities",
-      "migrationsDir": "src/migrations",
-      "subscribersDir": "src/subscribers"
+      "entitiesDir": rootDir + "/entities",
+      "migrationsDir": rootDir + "/migrations",
+      "subscribersDir": rootDir + "/subscribers"
    }
 }
