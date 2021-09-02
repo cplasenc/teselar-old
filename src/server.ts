@@ -31,7 +31,7 @@ app.use(cors({
 
 app.use(express.static('public'))
 
-app.get('/', (_, res) => res.send('Hola mundo'));
+app.get('/api', (_, res) => res.send('Test endpoint'));
 app.use('/api/auth', authRoutes)
 app.use('/api/posts', postRoutes)
 app.use('/api/subs', subRoutes)
